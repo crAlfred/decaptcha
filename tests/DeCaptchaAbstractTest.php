@@ -149,6 +149,7 @@ class DeCaptchaAbstractTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(null, $bound(0));
     }
 
+<<<<<<< HEAD
 //    public function testGetInUrl()
 //    {
 //        $abstract = $this->newInstance();
@@ -212,3 +213,71 @@ class DeCaptchaAbstractTest extends PHPUnit_Framework_TestCase
 //        $this->assertEquals(['protected' => 'value'], $data['form']);
 //    }
 }
+=======
+    public function testGetInUrl()
+    {
+        $abstract = $this->newInstance();
+        $getInUrlCaller = function() {
+            return $this->getInUrl();
+        };
+        $abstract->domain = 'domain';
+        $abstract->setApiKey('123456');
+        $bound = $getInUrlCaller->bindTo($abstract, $abstract);
+        $this->assertEquals('http://domain/in.php', $bound());
+    }
+
+    /**
+     * @expectedException \jumper423\decaptcha\core\DeCaptchaErrors
+     * @expectedExceptionCode 4
+     */
+    public function testIsError()
+    {
+        $abstract = $this->newInstance();
+        $isErrorCaller = function($val) {
+            return $this->isError($val);
+        };
+        $bound = $isErrorCaller->bindTo($abstract, $abstract);
+        $bound('ERROR_IP_NOT_ALLOWED');
+    }
+
+    public function testIsErrorNot()
+    {
+        $abstract = $this->newInstance();
+        $isErrorCaller = function($val) {
+            return $this->isError($val);
+        };
+        $bound = $isErrorCaller->bindTo($abstract, $abstract);
+        $this->assertNull($bound('BALANCE:56'));
+    }
+
+    /**
+     * @expectedException \jumper423\decaptcha\core\DeCaptchaErrors
+     * @expectedExceptionCode 17
+     * @expectedExceptionMessage Ошибка CURL: Could
+     */
+    public function testGetCurlResponseError()
+    {
+        $abstract = $this->newInstance();
+        $abstract->domain = 'domain';
+        $getCurlResponseCaller = function($val) {
+            return $this->getCurlResponse($val);
+        };
+        $bound = $getCurlResponseCaller->bindTo($abstract, $abstract);
+        $bound(['protected' => 'value']);
+    }
+
+    public function testGetCurlResponse()
+    {
+        $abstract = $this->newInstance();
+        $abstract->domain = 'httpbin.org';
+        $getCurlResponseCaller = function($val) {
+            $this->inUrl = 'post';
+            return $this->getCurlResponse($val);
+        };
+        $bound = $getCurlResponseCaller->bindTo($abstract, $abstract);
+        $data = $bound(['protected' => 'value']);
+        $data = json_decode($data, true);
+        $this->assertEquals(['protected' => 'value'], $data['form']);
+    }
+}
+>>>>>>> origin/scrutinizer-patch-6
